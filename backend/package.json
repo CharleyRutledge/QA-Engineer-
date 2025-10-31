@@ -1,0 +1,26 @@
+{
+  "name": "qa-agent-backend",
+  "version": "1.0.0",
+  "description": "QA Agent Backend - Azure Functions for automated test generation and execution",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "azure-functions",
+    "qa",
+    "test-automation",
+    "playwright"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/storage-blob": "^12.17.0",
+    "@azure/storage-queue": "^12.17.0",
+    "openai": "^4.20.0",
+    "uuid": "^9.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
