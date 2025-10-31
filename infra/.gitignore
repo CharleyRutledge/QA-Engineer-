@@ -1,0 +1,17 @@
+# Azure deployment files
+*.parameters.json
+!parameters.json
+
+# Deployment outputs
+deployment-outputs.json
+
+# Azure CLI cache
+.azure/
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

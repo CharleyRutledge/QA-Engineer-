@@ -1,0 +1,33 @@
+# Azure Functions artifacts
+bin
+obj
+appsettings.json
+local.settings.json
+.vscode
+.azure
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Dependencies
+node_modules
+
+# Environment variables
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea
+*.swp
+*.swo
+*~
+
+# Test results
+test-results/
+*.spec.js.bak

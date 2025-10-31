@@ -1,0 +1,19 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "AZURE_STORAGE_CONNECTION_STRING": "DefaultEndpointsProtocol=https;AccountName=...;AccountKey=...",
+    "AZURE_DEVOPS_ORG_URL": "https://dev.azure.com/yourorg",
+    "AZURE_DEVOPS_PROJECT": "YourProject",
+    "AZURE_DEVOPS_PAT": "your-personal-access-token",
+    "OPENAI_API_KEY": "sk-...",
+    "AZURE_OPENAI_ENDPOINT": "https://your-resource.openai.azure.com",
+    "AZURE_OPENAI_MODEL": "gpt-4",
+    "QA_JOBS_QUEUE_NAME": "test-generation-queue",
+    "STORAGE_CONTAINER_NAME": "test-scripts",
+    "RESULTS_CONTAINER_NAME": "test-results",
+    "PLAYWRIGHT_DOCKER_IMAGE": "mcr.microsoft.com/playwright/python:v1.40.0",
+    "WORK_ITEM_STATUS": "Ready for Testing"
+  }
+}

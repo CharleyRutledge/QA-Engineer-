@@ -1,0 +1,6 @@
+# GitHub Actions workflow artifacts
+*.log
+*.txt
+
+# Local workflow test files
+test-results/

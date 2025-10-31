@@ -1,0 +1,112 @@
+/**
+ * TaggingPanel Component Styles
+ */
+
+.tagging-panel {
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tagging-panel h3 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: #333;
+}
+
+.tagging-section {
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.tagging-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.tagging-section h4 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+.predefined-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag-btn {
+  padding: 8px 16px;
+  background-color: #e7f3ff;
+  color: #0078d4;
+  border: 1px solid #0078d4;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.tag-btn:hover:not(:disabled) {
+  background-color: #0078d4;
+  color: white;
+}
+
+.tag-btn.active {
+  background-color: #0078d4;
+  color: white;
+}
+
+.tag-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tag-form {
+  display: flex;
+  gap: 10px;
+}
+
+.tag-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.tag-input:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 2px rgba(0, 120, 212, 0.1);
+}
+
+.current-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tagging-error {
+  padding: 10px;
+  background-color: #fee;
+  color: #c00;
+  border-radius: 4px;
+  border: 1px solid #fcc;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.tagging-success {
+  padding: 10px;
+  background-color: #d4edda;
+  color: #155724;
+  border-radius: 4px;
+  border: 1px solid #c3e6cb;
+  font-size: 14px;
+  margin-top: 10px;
+}
