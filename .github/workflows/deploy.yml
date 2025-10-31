@@ -303,6 +303,16 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
+      - name: Cache backend node modules
+        uses: actions/cache@v3
+        id: cache-backend-deploy
+        continue-on-error: true
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-
+
       - name: Install Azure Functions Core Tools
         uses: Azure/functions-action@v1
         with:
@@ -310,7 +320,12 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: ./backend
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Get Function App name from deployment
         id: get-function-app
