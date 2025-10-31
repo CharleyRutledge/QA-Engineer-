@@ -1,0 +1,153 @@
+# Docker Compose Configuration for QA Agent Development Environment
+# Orchestrates backend, frontend, and runner services
+
+version: '3.8'
+
+services:
+  # Development container for VS Code
+  devcontainer:
+    build:
+      context: .devcontainer
+      dockerfile: Dockerfile
+    volumes:
+      # Mount workspace directories
+      - ./backend:/workspace/backend
+      - ./frontend:/workspace/frontend
+      - ./runner:/workspace/runner
+      # Mount Docker socket for Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      # Azure Storage configuration
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
+      # Azure DevOps configuration
+      - AZURE_DEVOPS_ORG_URL=${AZURE_DEVOPS_ORG_URL:-}
+      - AZURE_DEVOPS_PROJECT=${AZURE_DEVOPS_PROJECT:-}
+      - AZURE_DEVOPS_PAT=${AZURE_DEVOPS_PAT:-}
+      # OpenAI configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
+      - AZURE_OPENAI_MODEL=${AZURE_OPENAI_MODEL:-gpt-4}
+      # Frontend API URL
+      - REACT_APP_API_URL=http://localhost:7071
+    ports:
+      - "3000:3000"  # Frontend
+      - "7071:7071"  # Azure Functions
+      - "9229:9229"  # Node.js debugger
+    networks:
+      - qa-agent-network
+    stdin_open: true
+    tty: true
+
+  # Backend - Azure Functions Emulator
+  backend:
+    image: mcr.microsoft.com/azure-functions/node:4-node20
+    volumes:
+      - ./backend:/home/site/wwwroot
+      - azure-functions-host:/azure-functions-host
+    environment:
+      # Azure Storage configuration
+      - AzureWebJobsStorage=${AZURE_STORAGE_CONNECTION_STRING:-UseDevelopmentStorage=true}
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
+      # Azure DevOps configuration
+      - AZURE_DEVOPS_ORG_URL=${AZURE_DEVOPS_ORG_URL:-}
+      - AZURE_DEVOPS_PROJECT=${AZURE_DEVOPS_PROJECT:-}
+      - AZURE_DEVOPS_PAT=${AZURE_DEVOPS_PAT:-}
+      # OpenAI configuration
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - AZURE_OPENAI_API_KEY=${AZURE_OPENAI_API_KEY:-}
+      - AZURE_OPENAI_ENDPOINT=${AZURE_OPENAI_ENDPOINT:-}
+      - AZURE_OPENAI_MODEL=${AZURE_OPENAI_MODEL:-gpt-4}
+      # Queue and storage configuration
+      - QA_JOBS_QUEUE_NAME=${QA_JOBS_QUEUE_NAME:-test-generation-queue}
+      - STORAGE_CONTAINER_NAME=${STORAGE_CONTAINER_NAME:-test-scripts}
+      - RESULTS_CONTAINER_NAME=${RESULTS_CONTAINER_NAME:-test-results}
+      - JOB_STATUS_QUEUE_NAME=${JOB_STATUS_QUEUE_NAME:-job-status-queue}
+      # Work item configuration
+      - WORK_ITEM_STATUS=${WORK_ITEM_STATUS:-Ready for Testing}
+      # Functions runtime
+      - FUNCTIONS_WORKER_RUNTIME=node
+      - AzureWebJobsScriptRoot=/home/site/wwwroot
+    ports:
+      - "7071:80"
+    networks:
+      - qa-agent-network
+    depends_on:
+      - azurite
+    command: >
+      bash -c "cd /home/site/wwwroot && 
+      npm install && 
+      func start --host 0.0.0.0 --port 80"
+
+  # Frontend - React Development Server
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:7071
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+    ports:
+      - "3000:3000"
+    networks:
+      - qa-agent-network
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+
+  # Runner - Playwright Test Container
+  runner:
+    build:
+      context: ./runner
+      dockerfile: Dockerfile
+    volumes:
+      - ./runner:/app
+      - test-results:/test-results
+    environment:
+      # Azure Storage configuration for downloading test scripts
+      - AZURE_STORAGE_CONNECTION_STRING=${AZURE_STORAGE_CONNECTION_STRING:-}
+      - STORAGE_CONTAINER_NAME=${STORAGE_CONTAINER_NAME:-test-scripts}
+      # Test execution configuration
+      - PLAYWRIGHT_DOCKER_IMAGE=${PLAYWRIGHT_DOCKER_IMAGE:-mcr.microsoft.com/playwright/python:v1.40.0}
+      - BASE_URL=${BASE_URL:-http://localhost:3000}
+      - HEADLESS=${HEADLESS:-true}
+      - BROWSER=${BROWSER:-all}
+      - TIMEOUT=${TIMEOUT:-30000}
+      - RESULTS_DIR=/test-results
+    networks:
+      - qa-agent-network
+    depends_on:
+      - frontend
+    # Keep container running for manual test execution
+    command: tail -f /dev/null
+
+  # Azurite - Azure Storage Emulator (for local development)
+  azurite:
+    image: mcr.microsoft.com/azurite:latest
+    volumes:
+      - azurite-data:/data
+      - azurite-logs:/logs
+    ports:
+      - "10000:10000"  # Blob service
+      - "10001:10001"  # Queue service
+      - "10002:10002"  # Table service
+    networks:
+      - qa-agent-network
+    command: azurite --blobHost 0.0.0.0 --queueHost 0.0.0.0 --tableHost 0.0.0.0 --location /data --debug /logs/debug.log
+
+# Named volumes for persistence
+volumes:
+  azure-functions-host:
+  azurite-data:
+  azurite-logs:
+  test-results:
+
+# Network for service communication
+networks:
+  qa-agent-network:
+    driver: bridge

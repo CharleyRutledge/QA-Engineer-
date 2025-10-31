@@ -1,0 +1,17 @@
+# Development Dockerfile for React Frontend
+# Used by docker-compose for hot-reload development
+
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+# Expose port
+EXPOSE 3000
+
+# Start development server
+CMD ["npm", "start"]

@@ -1,0 +1,83 @@
+{
+  "name": "QA Agent Development Environment",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "devcontainer",
+  "workspaceFolder": "/workspace",
+  
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  
+  // Customizations for VS Code
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-azurefunctions",
+        "ms-azuretools.azure-dev",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "ms-vscode.vscode-json"
+      ],
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "files.eol": "\n",
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  },
+  
+  // Mount volumes for workspace directories
+  "mounts": [
+    "source=${localWorkspaceFolder}/backend,target=/workspace/backend,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/frontend,target=/workspace/frontend,type=bind,consistency=cached",
+    "source=${localWorkspaceFolder}/runner,target=/workspace/runner,type=bind,consistency=cached"
+  ],
+  
+  // Forward ports for services
+  "forwardPorts": [
+    3000,  // Frontend React dev server
+    7071,  // Azure Functions emulator
+    9229   // Node.js debugger
+  ],
+  
+  // Port attributes
+  "portsAttributes": {
+    "3000": {
+      "label": "Frontend (React)",
+      "onAutoForward": "notify"
+    },
+    "7071": {
+      "label": "Backend (Azure Functions)",
+      "onAutoForward": "notify"
+    },
+    "9229": {
+      "label": "Node.js Debugger",
+      "onAutoForward": "silent"
+    }
+  },
+  
+  // Post-create command to install dependencies
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  
+  // Remote user
+  "remoteUser": "node",
+  
+  // Environment variables
+  "remoteEnv": {
+    "AZURE_STORAGE_CONNECTION_STRING": "${localEnv:AZURE_STORAGE_CONNECTION_STRING}",
+    "AZURE_DEVOPS_ORG_URL": "${localEnv:AZURE_DEVOPS_ORG_URL}",
+    "AZURE_DEVOPS_PROJECT": "${localEnv:AZURE_DEVOPS_PROJECT}",
+    "AZURE_DEVOPS_PAT": "${localEnv:AZURE_DEVOPS_PAT}",
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "AZURE_OPENAI_API_KEY": "${localEnv:AZURE_OPENAI_API_KEY}",
+    "AZURE_OPENAI_ENDPOINT": "${localEnv:AZURE_OPENAI_ENDPOINT}",
+    "AZURE_OPENAI_MODEL": "${localEnv:AZURE_OPENAI_MODEL}",
+    "REACT_APP_API_URL": "http://localhost:7071"
+  }
+}
