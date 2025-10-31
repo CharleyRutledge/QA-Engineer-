@@ -21,12 +21,8 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Azure Functions Core Tools
-RUN curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg \
-    && mv microsoft.gpg /etc/apt/trusted.gpg.d/microsoft.gpg \
-    && sh -c 'echo "deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/debian/$(lsb_release -rs | cut -d. -f1)/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/dotnetdev.list' \
-    && apt-get update \
-    && apt-get install -y azure-functions-core-tools-4
+# Install Azure Functions Core Tools (via npm for reliability)
+RUN npm install -g azure-functions-core-tools@4 --unsafe-perm=true
 
 # Install Azure CLI
 RUN curl -sL https://aka.ms/InstallAzureCLIDeb | bash
@@ -42,8 +38,8 @@ RUN npm install -g \
     typescript \
     @azure/static-web-apps-cli
 
-# Create non-root user for development
-RUN useradd -m -s /bin/bash node && \
+# Create or update non-root user for development
+RUN (id -u node >/dev/null 2>&1 || useradd -m -s /bin/bash node) && \
     usermod -aG docker node
 
 # Set up directory permissions

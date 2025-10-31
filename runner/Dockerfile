@@ -38,8 +38,8 @@ RUN apt-get update && apt-get install -y \
 # Using PLAYWRIGHT_BROWSERS_PATH to install browsers in a specific location
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-# Install Playwright package
-RUN npm install -g playwright@latest
+# Install Playwright packages (CLI/core and test runner)
+RUN npm install -g playwright@latest @playwright/test@latest
 
 # Install Chromium, Firefox, and WebKit browsers
 RUN npx playwright install chromium firefox webkit \

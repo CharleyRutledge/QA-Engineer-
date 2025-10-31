@@ -128,7 +128,7 @@ services:
 
   # Azurite - Azure Storage Emulator (for local development)
   azurite:
-    image: mcr.microsoft.com/azurite:latest
+    image: mcr.microsoft.com/azure-storage/azurite:latest
     volumes:
       - azurite-data:/data
       - azurite-logs:/logs

@@ -19,134 +19,86 @@ QA Agent automates your entire daily QA workflow:
 
 ### Architecture Overview
 
+```mermaid
+flowchart LR
+  User[User/QA] --> Frontend[React Frontend\n(port 3000)]
+  Frontend -->|REST| Backend[Azure Functions Backend\n(local: 7071)]
+
+  AzureBoards[Azure Boards] -->|Work items| Backend
+
+  subgraph Storage
+    Scripts[(Blob: test-scripts)]
+    Results[(Blob: test-results)]
+    ExecQueue[(Queue: test-execution-queue)]
+    GenQueue[(Queue: test-generation-queue)]
+    StatusQueue[(Queue: job-status-queue)]
+  end
+
+  Backend -->|Generate & store scripts| Scripts
+  Backend -->|Enqueue jobs| ExecQueue
+  Backend -->|Enqueue work items| GenQueue
+
+  Runner[Playwright Runner\n(Docker)] -->|Download scripts| Scripts
+  ExecQueue -->|Trigger| Runner
+  Runner -->|Upload results| Results
+  Runner -->|Status updates| StatusQueue
+
+  Backend -->|Notify| Teams[Microsoft Teams]
+  Backend -->|Query results| Results
+
+  note right of Results: Local development uses Azurite
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                         Azure Boards                            │
-│  Work Items with status "Ready for Testing" or High-Priority   │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            │ Fetch Work Items
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                    Azure Functions Backend                       │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  orchestrateQA (Timer: Daily 9 AM)                       │  │
-│  │  - Fetches work items                                     │  │
-│  │  - Generates scenarios & tests                            │  │
-│  │  - Coordinates workflow                                   │  │
-│  └──────────────┬───────────────────────┬────────────────────┘  │
-│                 │                       │                        │
-│  ┌──────────────▼──────┐    ┌───────────▼──────────┐           │
-│  │  generateTests      │    │  fetchWorkItems      │           │
-│  │  (Queue Trigger)    │    │  (Timer Trigger)     │           │
-│  │  - AI generates     │    │  - Queries Azure     │           │
-│  │    Playwright tests │    │    Boards            │           │
-│  │  - Stores scripts   │    │  - Enqueues items    │           │
-│  └──────────────┬──────┘    └──────────────────────┘           │
-│                 │                                               │
-│                 │ Enqueue Test Execution                        │
-│                 ▼                                               │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │  runTests (Queue Trigger)                                │  │
-│  │  - Downloads test script                                 │  │
-│  │  - Executes in Docker                                    │  │
-│  │  - Captures screenshots/logs                             │  │
-│  │  - Stores results                                        │  │
-│  └──────────────┬───────────────────────────────────────────┘  │
-│                 │                                               │
-│  ┌──────────────▼───────────────────────────────────────────┐  │
-│  │  jobStatus (HTTP GET)                                    │  │
-│  │  - Query test results                                    │  │
-│  │  - Returns evidence URLs                                 │  │
-│  └──────────────────────────────────────────────────────────┘  │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            │ Store Evidence & Results
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  Azure Blob Storage                              │
-│  - test-scripts/    (Generated Playwright scripts)              │
-│  - test-results/    (Screenshots, logs, reports)                │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            │ Test Execution
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Docker Runner Container                             │
-│  - Playwright with Chromium/Firefox/WebKit                      │
-│  - Executes test scripts                                        │
-│  - Captures screenshots and logs                                │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            │ Results & Evidence
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│              Azure Storage Queues                                │
-│  - test-generation-queue  (Work items ready for testing)        │
-│  - test-execution-queue   (Test execution jobs)                 │
-│  - job-status-queue       (Status updates)                      │
-└───────────────────────────┬─────────────────────────────────────┘
-                            │
-                            │ Notifications
-                            ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                  Microsoft Teams                                 │
-│  - Work item summaries                                          │
-│  - Test results with evidence links                            │
-│  - Daily QA summaries                                           │
-└─────────────────────────────────────────────────────────────────┘
+
+#### Service Topology (docker-compose)
+
+```mermaid
+flowchart TB
+  subgraph docker-compose
+    FE[frontend\n:3000]:::svc
+    BE[backend (Azure Functions)\n7071->80]:::svc
+    RUN[runner\n(tests)]:::svc
+    AZ[azurite\n10000/10001/10002]:::svc
+  end
+
+  FE -->|API calls| BE
+  BE -->|UseDevelopmentStorage=true| AZ
+  RUN -->|Reads/Writes blobs & queues| AZ
+  RUN -->|Tests against| FE
+
+  classDef svc fill:#f6f8fa,stroke:#d0d7de,color:#24292f
 ```
 
 ### Workflow Sequence
 
-```
-1. SCHEDULED TRIGGER (Daily 9 AM)
-   │
-   ├─> Fetch work items from Azure Boards
-   │   - Status: "Ready for Testing"
-   │   - High-priority bugs (priority <= 1)
-   │
-   ├─> For each work item:
-   │   │
-   │   ├─> Generate Exploratory Scenarios (AI)
-   │   │   - 3-5 edge case scenarios
-   │   │   - Risk-based testing focus
-   │   │
-   │   ├─> Generate Playwright Test Script (AI)
-   │   │   - Most critical scenario
-   │   │   - Screenshot capture
-   │   │   - Console logging
-   │   │
-   │   ├─> Store Script in Blob Storage
-   │   │   - Container: test-scripts
-   │   │   - Path: {testId}/test.spec.js
-   │   │
-   │   └─> Enqueue Test Execution
-   │       - Queue: test-execution-queue
-   │
-   ├─> Test Execution (Async)
-   │   │
-   │   ├─> Download script from Blob Storage
-   │   ├─> Execute in Docker Playwright container
-   │   ├─> Capture screenshots, logs, reports
-   │   └─> Store results in Blob Storage
-   │       - Container: test-results
-   │       - Path: {testId}/{screenshots,logs,reports}/
-   │
-   ├─> Send Teams Notifications
-   │   - Work item summary
-   │   - Exploratory scenarios
-   │   - Test results
-   │   - Evidence links (screenshots, logs)
-   │
-   ├─> Create Bugs (Optional, if failures)
-   │   - Azure Boards bug creation
-   │   - Evidence attached
-   │
-   └─> Daily Summary
-       - Work items processed count
-       - Test pass/fail statistics
-       - High-priority failures
+```mermaid
+sequenceDiagram
+  participant T as Timer (09:00)
+  participant B as Azure Boards
+  participant F as Azure Functions Backend
+  participant Q as test-execution-queue
+  participant S as Blob: test-scripts
+  participant R as Playwright Runner
+  participant O as Blob: test-results
+  participant M as Microsoft Teams
+
+  T->>F: orchestrateQA
+  F->>B: Fetch work items
+  B-->>F: Items "Ready for Testing" / high-priority
+  loop For each work item
+    F->>F: Generate scenarios (AI)
+    F->>F: Generate Playwright script
+    F->>S: Store script
+    F->>Q: Enqueue test job
+  end
+  R->>Q: Dequeue job
+  R->>S: Download script
+  R->>R: Execute tests (Chromium/Firefox/WebKit)
+  R->>O: Upload screenshots/logs/reports
+  R->>F: Status update
+  F->>M: Teams notification (links to evidence)
+  opt Failures
+    F->>B: Create bug with evidence
+  end
 ```
 
 ## Project Structure
