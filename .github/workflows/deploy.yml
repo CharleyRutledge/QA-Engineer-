@@ -47,23 +47,53 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: |
-            backend/package-lock.json
-            frontend/package-lock.json
+
+      - name: Cache backend node modules
+        uses: actions/cache@v3
+        id: cache-backend
+        continue-on-error: true
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-node-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-
 
       - name: Install backend dependencies
         working-directory: ./backend
         run: |
           if [ -f package.json ]; then
-            npm ci
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              echo "No package-lock.json found, running npm install..."
+              npm install
+            fi
+          else
+            echo "No package.json found in backend, skipping..."
           fi
+
+      - name: Cache frontend node modules
+        uses: actions/cache@v3
+        id: cache-frontend
+        continue-on-error: true
+        with:
+          path: frontend/node_modules
+          key: ${{ runner.os }}-frontend-node-${{ hashFiles('frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-frontend-node-
 
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: |
           if [ -f package.json ]; then
-            npm ci
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              echo "No package-lock.json found, running npm install..."
+              npm install
+            fi
+          else
+            echo "No package.json found in frontend, skipping..."
           fi
 
       - name: Run backend linting
@@ -272,8 +302,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
 
       - name: Install Azure Functions Core Tools
         uses: Azure/functions-action@v1
