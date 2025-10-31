@@ -1,0 +1,47 @@
+/**
+ * App Component Styles
+ * 
+ * Styles for the main application layout.
+ */
+
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.App-header {
+  background-color: #0078d4;
+  color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.App-header h1 {
+  margin: 0 0 5px 0;
+  font-size: 28px;
+}
+
+.App-header p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.App-main {
+  flex: 1;
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.App-footer {
+  background-color: #333;
+  color: white;
+  padding: 15px;
+  text-align: center;
+  font-size: 12px;
+  margin-top: auto;
+}

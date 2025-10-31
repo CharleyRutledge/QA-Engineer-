@@ -1,0 +1,151 @@
+/**
+ * ExploratoryScenarios Component Styles
+ */
+
+.exploratory-scenarios {
+  background: white;
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.exploratory-scenarios h2 {
+  margin: 0 0 10px 0;
+  font-size: 22px;
+  color: #333;
+}
+
+.scenarios-count {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.scenarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.scenario-card {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.scenario-card:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.scenario-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  user-select: none;
+}
+
+.scenario-title-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.scenario-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.expand-icon {
+  color: #666;
+  font-size: 12px;
+}
+
+.scenario-content {
+  padding: 15px;
+  background-color: white;
+  border-top: 1px solid #e9ecef;
+}
+
+.scenario-description {
+  margin-bottom: 15px;
+}
+
+.scenario-description h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.scenario-description p {
+  margin: 0;
+  line-height: 1.6;
+  color: #333;
+}
+
+.scenario-focus-areas {
+  margin-bottom: 15px;
+}
+
+.scenario-focus-areas h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.scenario-focus-areas ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #333;
+}
+
+.scenario-focus-areas li {
+  margin-bottom: 5px;
+  line-height: 1.5;
+}
+
+.scenario-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #666;
+}
+
+.risk-level {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.risk-low {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.risk-medium {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.risk-high {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.risk-label {
+  font-size: 12px;
+  color: #666;
+}

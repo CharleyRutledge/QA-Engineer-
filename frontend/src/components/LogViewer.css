@@ -1,0 +1,162 @@
+/**
+ * LogViewer Component Styles
+ */
+
+.log-viewer {
+  width: 100%;
+}
+
+.log-viewer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.log-viewer-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.log-search {
+  flex: 1;
+  max-width: 300px;
+  margin-left: 20px;
+}
+
+.log-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.log-item {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.log-item:hover {
+  background-color: #e9ecef;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.log-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.log-name {
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+}
+
+.log-size {
+  font-size: 12px;
+  color: #666;
+}
+
+.log-meta {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.log-link {
+  color: #0078d4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.log-link:hover {
+  text-decoration: underline;
+}
+
+.no-logs {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.log-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.log-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 1200px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.log-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.log-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.log-close {
+  background: none;
+  border: none;
+  font-size: 30px;
+  cursor: pointer;
+  color: #666;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  line-height: 1;
+}
+
+.log-close:hover {
+  color: #333;
+}
+
+.log-modal-body {
+  flex: 1;
+  overflow: hidden;
+}
+
+.log-iframe {
+  width: 100%;
+  height: calc(90vh - 80px);
+  border: none;
+}
